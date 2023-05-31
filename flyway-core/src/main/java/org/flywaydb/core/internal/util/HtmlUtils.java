@@ -15,17 +15,16 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.HtmlResult;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.output.CompositeResult;
+import static org.flywaydb.core.internal.reports.html.HtmlReportGenerator.generateHtml;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.time.format.DateTimeFormatter;
 
-import static org.flywaydb.core.internal.reports.html.HtmlReportGenerator.generateHtml;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.HtmlResult;
 
 public class HtmlUtils {
     public static String toHtmlFile(String filename, CompositeResult<HtmlResult> results, Configuration config) {
@@ -50,6 +49,75 @@ public class HtmlUtils {
     }
 
     public static String htmlEncode(String input) {
-        return StringEscapeUtils.escapeHtml4(input);
+        StringBuilder sb = new StringBuilder(input.length());
+        htmlEncode(sb, input, 0, input.length());
+        return sb.toString();
+    }
+    
+    private static final String QUOT = "&quot;";
+
+    private static final String AMP = "&amp;";
+
+    private static final String APOS = "&#x27;";
+
+    private static final String LT = "&lt;";
+
+    private static final String EQUAL = "&#x3D;";
+
+    private static final String GT = "&gt;";
+
+    private static final String BACK_TICK = "&#x60;";
+    
+    private static void htmlEncode(StringBuilder a, CharSequence csq, int start, int end) {
+        csq = csq == null ? "null" : csq;
+        for (int i = start; i < end; i++) {
+            char c = csq.charAt(i);
+            switch (c) {
+                case '"' : { // 34
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(QUOT);
+                    break;
+                }
+                case '&' : { // 38
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(AMP);
+                    break;
+
+                }
+                case '\'' : { // 39
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(APOS);
+                    break;
+                }
+                case '<' : { // 60
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(LT);
+                    break;
+                }
+                case '=' : { // 61
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(EQUAL);
+                    break;
+                }
+                case '>' : { // 62
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(GT);
+                    break;
+                }
+                case '`' : { // 96
+                    a.append(csq, start, i);
+                    start = i + 1;
+                    a.append(BACK_TICK);
+                    break;
+                }
+            }
+        }
+        a.append(csq, start, end);
     }
 }
