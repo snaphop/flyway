@@ -38,5 +38,5 @@ jobs:
         cache: 'maven'
 
     - name: Deploy to SnapHop repository
-      run: mvn ${MAVEN_CLI_OPTS} clean deploy pom.xml -DskipTests=true
+      run: mvn ${MAVEN_CLI_OPTS} clean deploy -DskipTests=true
 
